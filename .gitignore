@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Environnement virtuel
+venv/
+env/
+.env
+.venv/
+
+# Flask
+instance/
+*.cfg
+
+# Données utilisateurs
+users.xlsx
+
+# Modèles ML
+saved_models/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp

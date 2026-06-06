@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse Risque — Risk Crédit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --ink: #1a1a2e;
+            --paper: #f5f0e8;
+            --accent: #c0392b;
+            --muted: #8a8275;
+            --border: #d6cfc4;
+            --white: #ffffff;
+            --radius: 4px;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--paper);
+            color: var(--ink);
+        }
+
+        /* ── Navbar ── */
+        nav {
+            background: var(--ink);
+            padding: 0 1.5rem;
+            height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            font-family: 'Playfair Display', serif;
+            color: #fff;
+            font-size: 1.1rem;
+        }
+
+        .nav-brand span { color: #e74c3c; }
+
+        .nav-user { position: relative; }
+
+        .nav-user button {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            padding: 0.35rem 0.9rem;
+            border-radius: 2px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .nav-user button:hover { border-color: #fff; }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0; top: calc(100% + 8px);
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            min-width: 160px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+            z-index: 100;
+        }
+
+        .dropdown-menu.open { display: block; }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 0.65rem 1rem;
+            font-size: 0.88rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .dropdown-menu a:hover { background: #fdf2f0; }
+
+        /* ── Page ── */
+        .page {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 1.8rem 1.2rem 2.5rem;
+        }
+
+        .page-header {
+            margin-bottom: 1.4rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+        }
+
+        .page-header p {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-top: 0.25rem;
+        }
+
+        /* ── Résultat ── */
+        .result-card {
+            border-radius: 6px;
+            padding: 1rem 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .result-card.defaut { background: #fdf2f0; border: 1.5px solid #e74c3c; }
+        .result-card.normal { background: #f0fdf5; border: 1.5px solid #27ae60; }
+
+        .result-icon { font-size: 1.8rem; line-height: 1; }
+
+        .result-text strong {
+            display: block;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+        }
+
+        .result-card.defaut .result-text strong { color: #c0392b; }
+        .result-card.normal .result-text strong { color: #1e8449; }
+
+        .result-text span { font-size: 0.82rem; color: var(--muted); }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1.4rem 1.4rem 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            margin-bottom: 1rem;
+            padding-bottom: 0.6rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ── Grille responsive ── */
+        .fields-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.8rem 1.2rem;
+        }
+
+        .fields-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.8rem 1.2rem;
+        }
+
+        .field { display: flex; flex-direction: column; }
+
+        label {
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: var(--muted);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+        }
+
+        input[type="number"], select {
+            padding: 0.55rem 0.75rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            color: var(--ink);
+            background: #fafaf8;
+            outline: none;
+            transition: border-color 0.2s;
+            width: 100%;
+            appearance: none;
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: var(--ink);
+            background: #fff;
+        }
+
+        .select-wrap { position: relative; }
+
+        .select-wrap::after {
+            content: '▾';
+            position: absolute;
+            right: 0.75rem; top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.75rem;
+            color: var(--muted);
+            pointer-events: none;
+        }
+
+        select { padding-right: 2rem; cursor: pointer; }
+
+        .field-hint {
+            font-size: 0.68rem;
+            color: var(--muted);
+            margin-top: 0.2rem;
+        }
+
+        /* ── Submit ── */
+        .submit-row { text-align: center; margin-top: 1.2rem; }
+
+        .btn-submit {
+            background: var(--ink);
+            color: #fff;
+            border: none;
+            padding: 0.7rem 3rem;
+            border-radius: var(--radius);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 500;
+            cursor: pointer;
+            letter-spacing: 0.04em;
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover { background: #2c2c4a; }
+
+        /* ── Responsive ── */
+        @media (max-width: 720px) {
+            .fields-grid,
+            .fields-grid-2 { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 480px) {
+            .fields-grid,
+            .fields-grid-2 { grid-template-columns: 1fr; }
+
+            .card { padding: 1rem; }
+            .page { padding: 1rem 0.8rem 2rem; }
+            .btn-submit { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-brand">Risk<span>Crédit</span></div>
+    <div class="nav-user">
+        <button id="dropBtn">{{ prenom }} ▾</button>
+        <div class="dropdown-menu" id="dropMenu">
+            <a href="{{ url_for('logout') }}">Se déconnecter</a>
+        </div>
+    </div>
+</nav>
+
+<div class="page">
+    <div class="page-header">
+        <h1>Analyse du Risque de Crédit</h1>
+        <p>Renseignez les informations du client pour évaluer le risque de défaut de paiement.</p>
+    </div>
+
+    {% if prediction is not none %}
+    <div class="result-card {% if prediction == 1 %}defaut{% else %}normal{% endif %}">
+        <div class="result-icon">{% if prediction == 1 %}⚠️{% else %}✅{% endif %}</div>
+        <div class="result-text">
+            <strong>{% if prediction == 1 %}Risque de défaut détecté{% else %}Pas de défaut prévu{% endif %}</strong>
+            <span>{% if prediction == 1 %}Ce profil présente un risque élevé de non-remboursement.{% else %}Ce profil semble solvable selon le modèle.{% endif %}</span>
+        </div>
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('predict') }}">
+
+        <div class="card">
+            <div class="card-title">Profil du demandeur</div>
+            <div class="fields-grid">
+                <div class="field">
+                    <label>Âge</label>
+                    <input type="number" name="AGE" min="18" max="99" step="1" required>
+                </div>
+                <div class="field">
+                    <label>Salaire mensuel (FCFA)</label>
+                    <input type="number" name="SALAIRE_MENSUEL" min="0" step="1000" required>
+                </div>
+                <div class="field">
+                    <label>Durée d'emploi (mois)</label>
+                    <input type="number" name="DUREE_EMPLOI" min="0" step="1" required>
+                </div>
+                <div class="field">
+                    <label>Ancienneté (années)</label>
+                    <input type="number" name="ANCIENNETE_ANNEES" min="0" step="0.5" required>
+                </div>
+                <div class="field">
+                    <label>Type d'emploi</label>
+                    <div class="select-wrap">
+                        <select name="TYPE_EMPLOI" required>
+                            <option value="" disabled selected>Sélectionner…</option>
+                            <option value="Salarié">Salarié</option>
+                            <option value="Indépendant">Indépendant</option>
+                            <option value="Sans emploi">Sans emploi</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Incidents passés ?</label>
+                    <div class="select-wrap">
+                        <select name="A_INCIDENTS" required>
+                            <option value="" disabled selected>Sélectionner…</option>
+                            <option value="1">Oui</option>
+                            <option value="0">Non</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Informations sur le crédit</div>
+            <div class="fields-grid">
+                <div class="field">
+                    <label>Montant du crédit (FCFA)</label>
+                    <input type="number" name="MONTANT_CREDIT" min="0" step="1000" required>
+                </div>
+                <div class="field">
+                    <label>Durée du crédit (mois)</label>
+                    <input type="number" name="DUREE_CREDIT" min="1" step="1" required>
+                </div>
+                <div class="field">
+                    <label>Mensualité estimée (FCFA)</label>
+                    <input type="number" name="MENSUALITE_ESTIMEE" min="0" step="500" required>
+                </div>
+                <div class="field">
+                    <label>Nb crédits en cours</label>
+                    <input type="number" name="NB_CREDITS_EN_COURS" min="0" step="1" required>
+                </div>
+                <div class="field">
+                    <label>Nb incidents</label>
+                    <input type="number" name="NB_INCIDENTS" min="0" step="1" required>
+                </div>
+                <div class="field">
+                    <label>Type de garantie</label>
+                    <div class="select-wrap">
+                        <select name="GARANTIE" required>
+                            <option value="" disabled selected>Sélectionner…</option>
+                            <option value="Caution">Caution</option>
+                            <option value="Immobilière">Immobilière</option>
+                            <option value="Véhicule">Véhicule</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Indicateurs financiers</div>
+            <div class="fields-grid-2">
+                <div class="field">
+                    <label>Ratio d'endettement</label>
+                    <input type="number" name="RATIO_ENDETTEMENT" required>
+                </div>
+                <div class="field">
+                    <label>Ratio crédit / salaire</label>
+                    <input type="number" name="RATIO_CREDIT_SALAIRE" required>
+                </div>
+                <div class="field">
+                    <label>Historique enc.</label>
+                    <input type="number" name="HISTORIQUE_ENC" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="submit-row">
+            <button type="submit" class="btn-submit">Lancer l'analyse</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    const btn = document.getElementById('dropBtn');
+    const menu = document.getElementById('dropMenu');
+    btn.addEventListener('click', () => menu.classList.toggle('open'));
+    document.addEventListener('click', e => {
+        if (!btn.contains(e.target) && !menu.contains(e.target)) menu.classList.remove('open');
+    });
+</script>
+</body>
+</html>
